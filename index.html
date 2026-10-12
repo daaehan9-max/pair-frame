@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PAIR FRAME | 페어틀 편집기</title>
+<style>
+:root{--bg:#741b1d;--paper:#f8f7f4;--ink:#191919;--accent:#9f2630;--card:#b9b9b9}
+*{box-sizing:border-box} body{margin:0;background:#171717;color:#eee;font-family:Arial,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+header{padding:18px 16px 12px;max-width:1200px;margin:auto}header h1{font-size:19px;letter-spacing:.12em;margin:0 0 5px}header p{font-size:12px;color:#bbb;margin:0}
+.app{max-width:1200px;margin:auto;padding:12px;display:grid;grid-template-columns:280px minmax(0,1fr);gap:18px;align-items:start}
+.panel{background:#252525;border:1px solid #3d3d3d;border-radius:12px;padding:14px;position:sticky;top:12px}
+.panel h2{font-size:14px;margin:0 0 12px}.field{margin:0 0 12px}.field label{display:block;font-size:12px;color:#d0d0d0;margin-bottom:5px}
+input[type=text],textarea,select{width:100%;border:1px solid #555;background:#171717;color:white;border-radius:7px;padding:9px;font:inherit;font-size:13px}
+textarea{resize:vertical;min-height:62px}input[type=color]{width:100%;height:35px;background:#171717;border:1px solid #555;border-radius:7px}
+input[type=file]{width:100%;font-size:11px;color:#ccc} .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+button{width:100%;border:0;border-radius:8px;padding:11px;background:#a52b35;color:white;font-weight:bold;font-size:13px;margin-top:7px;cursor:pointer}
+button.secondary{background:#414141}.hint{font-size:11px;line-height:1.5;color:#aaa;margin:10px 0 0}
+.stage{min-width:0;overflow:auto;padding:8px 0 20px}
+.sheet{width:100%;min-width:620px;aspect-ratio:1536/1024;background:var(--bg);padding:2.5%;display:grid;grid-template-columns:1.13fr 1fr;gap:3.2%;overflow:hidden;color:var(--ink);position:relative}
+.hero{position:relative;min-width:0;min-height:0;background:#12382d;border:5px solid #eee;box-shadow:8px 8px 0 #cfcfcf;transform:rotate(-1deg);overflow:hidden}
+.hero img{width:100%;height:100%;object-fit:cover;display:block}
+.placeholder{height:100%;display:flex;align-items:center;justify-content:center;text-align:center;color:#d9e1d9;padding:20px;font-size:18px;line-height:1.5;background:radial-gradient(ellipse at top left,#426455,#0e261f 65%)}
+.profiles{display:grid;grid-template-columns:1fr 1fr;gap:7%;min-width:0}
+.profile{background:#f8f8f5;display:grid;grid-template-rows:1.55fr 1.7fr;min-width:0;min-height:0;border-radius:4px;overflow:hidden}
+.portrait{position:relative;overflow:hidden;background:#284638;min-height:0}
+.portrait img{width:100%;height:100%;object-fit:cover;display:block}
+.portrait .placeholder{font-size:12px;padding:8px}
+.name{position:absolute;left:5%;top:3%;color:white;font-weight:900;font-size:clamp(15px,2vw,32px);text-shadow:0 1px 4px #333;line-height:1.1}
+.details{padding:5% 5% 4%;display:flex;flex-direction:column;min-height:0;color:#111}
+.chibi{font-size:clamp(9px,1vw,14px);text-align:center;margin-bottom:3%;color:#333}
+.tags{font-size:clamp(7px,.9vw,13px);font-weight:bold;line-height:1.4;white-space:pre-wrap;overflow-wrap:anywhere}
+.stats{font-size:clamp(7px,.8vw,12px);line-height:1.35;white-space:pre-wrap;overflow-wrap:anywhere;margin-top:4%}
+.quoteTitle{font-weight:bold;background:#aaa;color:#fff;border-radius:4px;padding:2% 3%;font-size:clamp(7px,.8vw,12px);margin-top:auto}
+.quote{background:#aaa;color:#222;border-radius:0 0 4px 4px;padding:3%;font-size:clamp(6px,.7vw,10px);line-height:1.4;white-space:pre-wrap;overflow-wrap:anywhere;flex:1;min-height:0}
+[contenteditable=true]{outline:none;cursor:text}[contenteditable=true]:focus{outline:1px dashed #d05a63;outline-offset:2px}
+@media(max-width:760px){.app{grid-template-columns:1fr;padding:10px}.panel{position:static}.stage{order:-1}.sheet{min-width:700px}.stage{overflow-x:auto}header{padding-left:12px}}
+@media print{body{background:white}.no-print,header,.panel{display:none!important}.app{display:block;padding:0;max-width:none}.stage{padding:0;overflow:visible}.sheet{width:100vw;height:66.67vw;min-width:0;print-color-adjust:exact;-webkit-print-color-adjust:exact;break-inside:avoid}.hero{transform:rotate(-1deg)}@page{size:landscape;margin:0}}
+</style>
+</head>
+<body>
+<header><h1>PAIR FRAME</h1><p>사진과 글을 바꿔 만드는 페어 프로필 편집기</p></header>
+<div class="app">
+<aside class="panel no-print">
+<h2>편집 도구</h2>
+<div class="field"><label>전체 배경색</label><input id="bgColor" type="color" value="#741b1d"></div>
+<div class="field"><label>메인 이미지 업로드</label><input id="heroFile" type="file" accept="image/*"></div>
+<div class="field"><label>왼쪽 캐릭터 이미지</label><input id="leftFile" type="file" accept="image/*"></div>
+<div class="field"><label>오른쪽 캐릭터 이미지</label><input id="rightFile" type="file" accept="image/*"></div>
+<hr style="border:0;border-top:1px solid #444;margin:16px 0">
+<h2>왼쪽 캐릭터</h2>
+<div class="field"><label>이름</label><input type="text" data-target="leftName" value="신우현"></div>
+<div class="field"><label>해시태그 (줄바꿈 가능)</label><textarea data-target="leftTags">#무뚝뚝한 #개새끼
+#청명남 #회피형</textarea></div>
+<div class="field"><label>나이 · 키 · 특징</label><textarea data-target="leftStats">17살 187cm
+공식미남
+남색반깐머리에 검정눈 (안광없음)
+동물화-늑대</textarea></div>
+<div class="field"><label>상대에 대한 생각</label><textarea data-target="leftQuote">바보같고, 멍청하고 못생겼지만 나름 괜찮은 면도 있어.
+그리고... 친구라고 생각해. 아님 말고.
+같이 있었으면 해. 그리고 살아주면 좋겠다.
+항상 고맙고... 사실 거짓말이야 시발</textarea></div>
+<hr style="border:0;border-top:1px solid #444;margin:16px 0">
+<h2>오른쪽 캐릭터</h2>
+<div class="field"><label>이름</label><input type="text" data-target="rightName" value="서이한"></div>
+<div class="field"><label>해시태그 (줄바꿈 가능)</label><textarea data-target="rightTags">#강강약약 #리더쉽있는
+#츤데레 #안정형</textarea></div>
+<div class="field"><label>나이 · 키 · 특징</label><textarea data-target="rightStats">17살 175cm
+백발에 뿌염 안 한듯한 검정색 뿌리
+하늘색 눈동자
+동물화-고양이</textarea></div>
+<div class="field"><label>상대에 대한 생각</label><textarea data-target="rightQuote">음... 뭐 존나 까다롭고, 싸가지도 없고, 나한테 왜 그러는 건지 모르겠음.
+근데 좀 잘난 애새끼? 같음.
+내가 없으면 못 살 것 같음. 징징이는 거 같음</textarea></div>
+<div class="field"><label>글꼴</label><select id="font"><option value='Arial,"Apple SD Gothic Neo","Malgun Gothic",sans-serif'>깔끔한 고딕</option><option value='"Georgia","Batang",serif'>명조</option><option value='"Courier New",monospace'>타자기</option></select></div>
+<button id="printBtn">이미지 / PDF로 저장</button>
+<button class="secondary" id="resetBtn">기본 문구로 되돌리기</button>
+<p class="hint">미리보기에서 이름과 글을 직접 눌러 수정할 수도 있어. 저장은 인쇄 창에서 ‘PDF로 저장’을 선택하면 돼. 사진은 이 브라우저 안에서 미리보기로만 처리돼.</p>
+</aside>
+<main class="stage">
+<section class="sheet" id="sheet">
+<div class="hero" id="heroBox"><div class="placeholder">메인 페어 일러스트<br>왼쪽 도구에서 사진을 업로드해 줘</div></div>
+<div class="profiles">
+<article class="profile">
+<div class="portrait" id="leftPortrait"><div class="placeholder">캐릭터 1<br>사진 업로드</div><div class="name" id="leftName" contenteditable="true">신우현</div></div>
+<div class="details"><div class="chibi">◉ 캐릭터 프로필</div><div class="tags" id="leftTags" contenteditable="true">#무뚝뚝한 #개새끼
+#청명남 #회피형</div><div class="stats" id="leftStats" contenteditable="true">17살 187cm
+공식미남
+남색반깐머리에 검정눈 (안광없음)
+동물화-늑대</div><div class="quoteTitle">서로 어떻게 생각하나요</div><div class="quote" id="leftQuote" contenteditable="true">바보같고, 멍청하고 못생겼지만 나름 괜찮은 면도 있어.
+그리고... 친구라고 생각해. 아님 말고.
+같이 있었으면 해. 그리고 살아주면 좋겠다.
+항상 고맙고... 사실 거짓말이야 시발</div></div>
+</article>
+<article class="profile">
+<div class="portrait" id="rightPortrait"><div class="placeholder">캐릭터 2<br>사진 업로드</div><div class="name" id="rightName" contenteditable="true">서이한</div></div>
+<div class="details"><div class="chibi">◉ 캐릭터 프로필</div><div class="tags" id="rightTags" contenteditable="true">#강강약약 #리더쉽있는
+#츤데레 #안정형</div><div class="stats" id="rightStats" contenteditable="true">17살 175cm
+백발에 뿌염 안 한듯한 검정색 뿌리
+하늘색 눈동자
+동물화-고양이</div><div class="quoteTitle">서로 어떻게 생각하나요</div><div class="quote" id="rightQuote" contenteditable="true">음... 뭐 존나 까다롭고, 싸가지도 없고, 나한테 왜 그러는 건지 모르겠음.
+근데 좀 잘난 애새끼? 같음.
+내가 없으면 못 살 것 같음. 징징이는 거 같음</div></div>
+</article>
+</div>
+</section>
+</main>
+</div>
+<script>
+const defaults={leftName:"신우현",leftTags:"#무뚝뚝한 #개새끼\n#청명남 #회피형",leftStats:"17살 187cm\n공식미남\n남색반깐머리에 검정눈 (안광없음)\n동물화-늑대",leftQuote:"바보같고, 멍청하고 못생겼지만 나름 괜찮은 면도 있어.\n그리고... 친구라고 생각해. 아님 말고.\n같이 있었으면 해. 그리고 살아주면 좋겠다.\n항상 고맙고... 사실 거짓말이야 시발",rightName:"서이한",rightTags:"#강강약약 #리더쉽있는\n#츤데레 #안정형",rightStats:"17살 175cm\n백발에 뿌염 안 한듯한 검정색 뿌리\n하늘색 눈동자\n동물화-고양이",rightQuote:"음... 뭐 존나 까다롭고, 싸가지도 없고, 나한테 왜 그러는 건지 모르겠음.\n근데 좀 잘난 애새끼? 같음.\n내가 없으면 못 살 것 같음. 징징이는 거 같음"};
+document.querySelectorAll("[data-target]").forEach(el=>el.addEventListener("input",()=>{document.getElementById(el.dataset.target).innerText=el.value}));
+function loadImage(inputId,boxId){document.getElementById(inputId).addEventListener("change",e=>{const file=e.target.files&&e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{const box=document.getElementById(boxId);box.querySelectorAll("img,.placeholder").forEach(n=>n.remove());const img=document.createElement("img");img.src=reader.result;img.alt="업로드한 이미지";if(boxId!=="heroBox"){img.style.position="absolute";img.style.inset="0";const name=box.querySelector(".name");box.insertBefore(img,name)}else box.appendChild(img)};reader.readAsDataURL(file)})}
+loadImage("heroFile","heroBox");loadImage("leftFile","leftPortrait");loadImage("rightFile","rightPortrait");
+document.getElementById("bgColor").addEventListener("input",e=>document.getElementById("sheet").style.background=e.target.value);
+document.getElementById("font").addEventListener("change",e=>document.getElementById("sheet").style.fontFamily=e.target.value);
+document.getElementById("printBtn").addEventListener("click",()=>window.print());
+document.getElementById("resetBtn").addEventListener("click",()=>{Object.entries(defaults).forEach(([id,val])=>{document.getElementById(id).innerText=val;const field=document.querySelector(`[data-target="${id}"]`);if(field)field.value=val});document.getElementById("bgColor").value="#741b1d";document.getElementById("sheet").style.background="#741b1d";document.getElementById("font").selectedIndex=0;["heroBox","leftPortrait","rightPortrait"].forEach((id,i)=>{const box=document.getElementById(id);box.querySelectorAll("img").forEach(n=>n.remove());if(!box.querySelector(".placeholder")){const p=document.createElement("div");p.className="placeholder";p.innerHTML=i===0?"메인 페어 일러스트<br>왼쪽 도구에서 사진을 업로드해 줘":`캐릭터 ${i} <br>사진 업로드`;box.insertBefore(p,box.firstChild)}})});
+</script>
+</body>
+</html>
